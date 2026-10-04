@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from portpower.ship.registry import ProfileRegistry
+from portpower.ship.history import ProfileHistory
 
 
 class LoadExceedsProfile(RuntimeError):
@@ -10,11 +10,13 @@ class LoadExceedsProfile(RuntimeError):
 
 
 class LimitEnforcer:
-    def __init__(self, registry: ProfileRegistry) -> None:
-        self._registry = registry
+    """Judges requests against the profile version effective right now."""
+
+    def __init__(self, history: ProfileHistory) -> None:
+        self._history = history
 
     def allow(self, ship: str, load: float) -> bool:
-        profile = self._registry.load(ship)
-        if profile is None:
+        record = self._history.effective_now(ship)
+        if record is None:
             return False
-        return load <= profile.max_load
+        return load <= record.profile.max_load

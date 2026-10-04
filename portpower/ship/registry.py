@@ -19,6 +19,9 @@ class ProfileRegistry:
     def save(self, profile: Profile) -> None:
         self._store.put_json(profile_key(profile.ship), profile.as_dict())
 
+    def drop(self, ship: str) -> None:
+        self._store.delete(profile_key(ship))
+
     def load(self, ship: str) -> Profile | None:
         return Profile.from_dict(self._store.get_json(profile_key(ship)))
 
@@ -33,11 +36,3 @@ class ProfileRegistry:
 
     def headroom(self, ship: str, factor: float = 1.1) -> float:
         return self.demand(ship) * factor
-
-    def retrofit(self, ship: str, added_load: float) -> Profile:
-        profile = self.load(ship)
-        if profile is None:
-            raise LookupError(f"profile not found for ship {ship}")
-        updated = profile.with_added_load(added_load)
-        self.save(updated)
-        return updated

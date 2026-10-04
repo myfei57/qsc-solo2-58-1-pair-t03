@@ -54,7 +54,11 @@ def build_router(runtime) -> Router:
     router.get("/ships", bind(ship.ships, runtime))
     router.get("/ship", bind(ship.ship_detail, runtime))
     router.post("/retrofit", bind(ship.retrofit, runtime))
+    router.post("/retrofit/withdraw", bind(ship.retrofit_withdraw, runtime))
+    router.post("/retrofit/freeze", bind(ship.retrofit_freeze, runtime))
+    router.post("/retrofit/unfreeze", bind(ship.retrofit_unfreeze, runtime))
     router.get("/ship/history", bind(ship.history, runtime))
+    router.get("/ship/capacity", bind(ship.capacity, runtime))
 
     router.get("/audit", bind(audit.audit_list, runtime))
     router.get("/audit/latest", bind(audit.audit_latest, runtime))

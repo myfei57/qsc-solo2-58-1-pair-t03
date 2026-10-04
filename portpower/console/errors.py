@@ -16,6 +16,8 @@ from portpower.meter.meter import MeterFrozen
 from portpower.phase.verifier import PhaseReversed
 from portpower.plug.engage import NoMeterBinding
 from portpower.plug.release import PlugNotEngaged
+from portpower.ship.freeze import RetrofitFrozen
+from portpower.ship.history import VersionAlreadyWithdrawn
 from portpower.store.kvstore import StoreKeyError
 
 CONFLICT_ERRORS: tuple[type[Exception], ...] = (
@@ -34,6 +36,8 @@ CONFLICT_ERRORS: tuple[type[Exception], ...] = (
     NoMeterBinding,
     PlugNotEngaged,
     StoreKeyError,
+    RetrofitFrozen,
+    VersionAlreadyWithdrawn,
 )
 
 

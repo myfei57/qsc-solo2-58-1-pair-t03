@@ -76,6 +76,7 @@ def build_runtime(harbor: Harbor, store: RecordStore) -> Runtime:
     cables = CableInventory()
     cable_id, cable_rating = SHORE_CABLE
     cables.add(cable_id, cable_rating)
+    history = ProfileHistory(store)
 
     return Runtime(
         harbor=harbor,
@@ -96,9 +97,9 @@ def build_runtime(harbor: Harbor, store: RecordStore) -> Runtime:
         tariff=Tariff(TARIFF_RATE),
         monitor=TemperatureMonitor(MONITOR_WINDOW),
         scheduler=Scheduler(store),
-        history=ProfileHistory(store),
+        history=history,
         phase=PhaseState(),
         shore=Breaker(SHORE_BREAKER_ID),
         protector=Protector(PROTECTION_THRESHOLD, filter_window),
-        limiter=LimitEnforcer(ProfileRegistry(store)),
+        limiter=LimitEnforcer(history),
     )
