@@ -9,6 +9,7 @@ from portpower.console.handlers import (
     berth,
     breaker,
     cable,
+    capacity,
     connect,
     disconnect,
     frequency,
@@ -55,6 +56,20 @@ def build_router(runtime) -> Router:
     router.get("/ship", bind(ship.ship_detail, runtime))
     router.post("/retrofit", bind(ship.retrofit, runtime))
     router.get("/ship/history", bind(ship.history, runtime))
+
+    router.post("/capacity/declare", bind(capacity.capacity_declare, runtime))
+    router.get("/capacity/versions", bind(capacity.capacity_versions, runtime))
+    router.get("/capacity/current", bind(capacity.capacity_current, runtime))
+    router.get("/capacity/as-of", bind(capacity.capacity_as_of, runtime))
+    router.post("/retrofit/submit", bind(capacity.retrofit_submit, runtime))
+    router.post("/retrofit/review", bind(capacity.retrofit_review, runtime))
+    router.post("/retrofit/revoke", bind(capacity.retrofit_revoke, runtime))
+    router.get("/retrofit/status", bind(capacity.retrofit_status, runtime))
+    router.post("/retrofit/freeze", bind(capacity.retrofit_freeze, runtime))
+    router.post("/retrofit/unfreeze", bind(capacity.retrofit_unfreeze, runtime))
+    router.post("/retrofit/tick", bind(capacity.retrofit_tick, runtime))
+    router.post("/settlement", bind(capacity.settle, runtime))
+    router.get("/settlements", bind(capacity.settlements, runtime))
 
     router.get("/audit", bind(audit.audit_list, runtime))
     router.get("/audit/latest", bind(audit.audit_latest, runtime))

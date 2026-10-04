@@ -23,9 +23,14 @@ from portpower.ns.catalog import Catalog
 from portpower.ns.harbor import Harbor
 from portpower.phase.state import PhaseState
 from portpower.quota.manager import QuotaManager
+from portpower.ship.capacity_ledger import CapacityLedger
+from portpower.ship.clock import Clock
+from portpower.ship.declaration_service import DeclarationService
 from portpower.ship.fleet import Fleet
 from portpower.ship.history import ProfileHistory
 from portpower.ship.registry import ProfileRegistry
+from portpower.ship.retrofit_request import RetrofitRegistry
+from portpower.ship.settlement import SettlementLedger
 from portpower.store.kvstore import RecordStore
 
 CATALOG_CODES: tuple[str, ...] = ("A1", "A2", "B1", "B2", "C1")
@@ -60,13 +65,17 @@ class Runtime:
     monitor: TemperatureMonitor
     scheduler: Scheduler
     history: ProfileHistory
+    capacities: CapacityLedger
+    retrofits: RetrofitRegistry
+    settlements: SettlementLedger
+    declarations: DeclarationService
     phase: PhaseState
     shore: Breaker
     protector: Protector
     limiter: LimitEnforcer
 
 
-def build_runtime(harbor: Harbor, store: RecordStore) -> Runtime:
+def build_runtime(harbor: Harbor, store: RecordStore, clock: Clock | None = None) -> Runtime:
     catalog = Catalog(CATALOG_CODES)
     berths = BerthRegistry()
     for code in catalog.codes():
@@ -76,6 +85,17 @@ def build_runtime(harbor: Harbor, store: RecordStore) -> Runtime:
     cables = CableInventory()
     cable_id, cable_rating = SHORE_CABLE
     cables.add(cable_id, cable_rating)
+
+    capacities = CapacityLedger(store)
+    retrofits = RetrofitRegistry(store)
+    settlements = SettlementLedger(store)
+    declarations = DeclarationService(
+        capacities=capacities,
+        retrofits=retrofits,
+        settlements=settlements,
+        ledger=Ledger(store),
+        clock=clock,
+    )
 
     return Runtime(
         harbor=harbor,
@@ -97,6 +117,10 @@ def build_runtime(harbor: Harbor, store: RecordStore) -> Runtime:
         monitor=TemperatureMonitor(MONITOR_WINDOW),
         scheduler=Scheduler(store),
         history=ProfileHistory(store),
+        capacities=capacities,
+        retrofits=retrofits,
+        settlements=settlements,
+        declarations=declarations,
         phase=PhaseState(),
         shore=Breaker(SHORE_BREAKER_ID),
         protector=Protector(PROTECTION_THRESHOLD, filter_window),
